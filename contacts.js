@@ -1,46 +1,59 @@
+// ! Функції для роботи з контактами
 import fs from "fs/promises";
 import path from "path";
+import languageEncoding from "detect-file-encoding-and-language";
+import { nanoid } from "nanoid";
 
 const contactsPath = path.resolve("db", "contacts.json");
+const { encoding } = await languageEncoding(contactsPath);
 
+// Спикос контктів:
 export async function listContacts() {
   try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    const contacts = JSON.parse(data);
-    return contacts;
+    const data = await fs.readFile(contactsPath, encoding);
+    return JSON.parse(data);
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 }
 
+// Пошук конткта:
 export async function getContactById(contactId) {
   try {
     const contacts = await listContacts();
-    const contact = contacts.find((c) => c.id === contactId);
-    return contact;
+    const findedContact = contacts.find((contact) => contact.id === contactId);
+    return findedContact || null;
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 }
 
-export async function addContact(newContact) {
+// Додавання контакта
+export async function addContact(data) {
   try {
+    const newContact = { id: nanoid(), ...data };
     const contacts = await listContacts();
-    const updatedContacts = [...contacts, newContact];
-    await fs.writeFile(contactsPath, JSON.stringify(updatedContacts, null, 2));
-    return newContact;
+    contacts.push(newContact);
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+    return newContact || null;
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 }
 
+// Видалення контакта
 export async function removeContact(contactId) {
   try {
     const contacts = await listContacts();
-    const updatedContacts = contacts.filter((c) => c.id !== contactId);
-    await fs.writeFile(contactsPath, JSON.stringify(updatedContacts, null, 2));
-    return true;
+    const index = contacts.findIndex((contact) => contact.id === contactId);
+    console.log(index);
+    if (index === -1) {
+      return null;
+    }
+    const [removedContact] = contacts.splice(index, 1);
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+    return removedContact;
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 }

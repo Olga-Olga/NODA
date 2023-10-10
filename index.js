@@ -1,41 +1,54 @@
+// import * as contacts from "./contacts.js";
+
 import {
-  listContacts,
-  getContactById,
   addContact,
+  getContactById,
+  listContacts,
   removeContact,
-} from "./contacts";
+} from "./contacts.js";
 
-async function main() {
-  try {
-    // Отримання списку контактів
-    const contacts = await listContacts();
-    console.log("Список контактів:", contacts);
+import { program } from "commander";
 
-    // Отримання контакту за ID (замість 1 вставте бажаний ID)
-    const contactId = 1;
-    const contact = await getContactById(contactId);
-    console.log("Контакт за ID", contactId, ":", contact);
-
-    // Додавання нового контакту
-    const newContact = {
-      name: "Новий Контакт",
-      email: "newcontact@example.com",
-      phone: "1234567890",
-    };
-    const addedContact = await addContact(newContact);
-    console.log("Доданий контакт:", addedContact);
-
-    // Видалення контакту за ID (замість 2 вставте бажаний ID)
-    const contactToDeleteId = 2;
-    const isRemoved = await removeContact(contactToDeleteId);
-    if (isRemoved) {
-      console.log("Контакт з ID", contactToDeleteId, "був успішно видалений");
-    } else {
-      console.log("Не вдалося видалити контакт з ID", contactToDeleteId);
-    }
-  } catch (error) {
-    console.error("Помилка:", error.message);
+async function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      const allContacts = await listContacts();
+      return console.log("Спикос контктів:", allContacts);
+    case "getById":
+      const contactById = await getContactById(id);
+      return console.log("Пошук конткта:", contactById);
+    case "add":
+      const newContact = await addContact({ name, email, phone });
+      return console.log("Додавання контакта", newContact);
+    case "remove":
+      const removedContact = await removeContact(id);
+      return console.log("Видалення контакта", removedContact);
+    default:
+      console.warn("Unknoown results.");
   }
 }
 
-main();
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
+
+program.parse(process.argv);
+const options = program.opts();
+
+invokeAction(options);
+invokeAction({ action: "list" });
+invokeAction({ action: "getById", id: "vza2RIzNGIwutCVCs4mCL" });
+invokeAction({
+  action: "add",
+  id: "123",
+  name: "Olga",
+  email: "asdf@sdf.com",
+  phone: "123124124124",
+});
+invokeAction({
+  action: "remove",
+  id: "vza2RIzNGIwutCVCs4mCL",
+});
