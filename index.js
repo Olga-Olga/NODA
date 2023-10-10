@@ -8,13 +8,14 @@ import {
 } from "./contacts.js";
 
 import { program } from "commander";
+// const program = new Command();
 
 async function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case "list":
       const allContacts = await listContacts();
       return console.log("Спикос контктів:", allContacts);
-    case "getById":
+    case "get":
       const contactById = await getContactById(id);
       return console.log("Пошук конткта:", contactById);
     case "add":
@@ -24,7 +25,7 @@ async function invokeAction({ action, id, name, email, phone }) {
       const removedContact = await removeContact(id);
       return console.log("Видалення контакта", removedContact);
     default:
-      console.warn("Unknoown results.");
+      console.warn("\x1B[31m Unknown action type!");
   }
 }
 
@@ -36,19 +37,16 @@ program
   .option("-p, --phone <type>", "user phone");
 
 program.parse(process.argv);
-const options = program.opts();
+const argv = program.opts();
 
-invokeAction(options);
-invokeAction({ action: "list" });
-invokeAction({ action: "getById", id: "vza2RIzNGIwutCVCs4mCL" });
-invokeAction({
-  action: "add",
-  id: "123",
-  name: "Olga",
-  email: "asdf@sdf.com",
-  phone: "123124124124",
-});
-invokeAction({
-  action: "remove",
-  id: "vza2RIzNGIwutCVCs4mCL",
-});
+invokeAction(argv);
+// invokeAction({ action: "list" });
+// invokeAction({ action: "getById", id: "qdggE76Jtbfd9eWJHrssH" });
+// invokeAction({
+//   action: "add",
+//   id: "123",
+//   name: "Olga",
+//   email: "asdf@sdf.com",
+//   phone: "123124124124",
+// });
+// invokeAction({ action: "remove", id: "kdiU46unVHtxEyexyjIQL" });
